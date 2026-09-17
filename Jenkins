@@ -103,3 +103,123 @@ script{echo "Deploying"}
 } 
 } 
 }
+
+
+
+Jenkins Pipeline Scripts with DevOps Tools 
+1. Basic CI/CD Pipeline 
+groovy 
+pipeline { 
+agent any 
+stages { 
+stage('Clone Repository') { 
+steps { 
+git 'https://github.com/user/repo.git' 
+} 
+} 
+stage('Build') { 
+steps { 
+sh 'mvn clean package' 
+} 
+} 
+stage('Test') { 
+steps { 
+sh 'mvn test' 
+} 
+} 
+stage('Deploy') { 
+steps { 
+sh 'scp target/app.jar user@server:/deploy/path' 
+} 
+} 
+} 
+} 
+
+
+2. Docker Build & Push 
+groovy 
+pipeline { 
+agent any 
+environment { 
+DOCKER_HUB_USER = 'your-dockerhub-username' 
+} 
+stages { 
+stage('Build Docker Image') { 
+steps { 
+sh 'docker build -t my-app:latest .' 
+} 
+} 
+stage('Push to Docker Hub') { 
+steps { 
+withDockerRegistry([credentialsId: 'docker-hub-credentials', url: '']) { 
+sh 'docker tag my-app:latest $DOCKER_HUB_USER/my-app:latest' 
+sh 'docker push $DOCKER_HUB_USER/my-app:latest' 
+} 
+} 
+} 
+} 
+} 
+
+
+3. Kubernetes Deployment 
+groovy 
+pipeline { 
+agent any 
+stages { 
+stage('Deploy to Kubernetes') { 
+steps { 
+sh 'kubectl apply -f k8s/deployment.' 
+} 
+} 
+} 
+} 
+
+
+4. Terraform Deployment 
+groovy 
+pipeline { 
+agent any 
+stages { 
+stage('Terraform Init') { 
+steps { 
+sh 'terraform init' 
+} 
+} 
+stage('Terraform Apply') { 
+steps { 
+sh 'terraform apply -auto-approve' 
+} 
+} 
+} 
+} 
+
+
+5. Security Scanning with Trivy 
+groovy 
+pipeline { 
+agent any 
+stages { 
+stage('Scan with Trivy') { 
+steps { 
+sh 'trivy image my-app:latest' 
+} 
+} 
+} 
+} 
+6. SonarQube Code Analysis 
+groovy 
+pipeline { 
+agent any 
+environment { 
+SONAR_TOKEN = credentials('sonar-token') 
+} 
+stages { 
+stage('SonarQube Analysis') { 
+steps { 
+withSonarQubeEnv('SonarQube') { 
+sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN' 
+} 
+} 
+} 
+} 
+} 
