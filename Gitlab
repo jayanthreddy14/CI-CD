@@ -1,0 +1,90 @@
+GitLab CI/CD (stages, jobs, runners) 
+GitLab CI/CD Basics 
+● .gitlab-ci.yml: Defines the CI/CD pipeline in the repository root. 
+● Stages: Pipeline execution order (build, test, deploy). 
+● Jobs: Specific tasks in each stage. 
+● Runners: Machines executing jobs (shared or self-hosted). 
+● Artifacts: Files preserved after job execution
+
+
+�
+� Basic GitLab CI/CD Pipeline 
+�
+� File: .gitlab-ci.yml 
+stages: - build - test - deploy 
+build: 
+stage: build 
+script: - echo "Building application..." - mvn clean package 
+artifacts: 
+paths: - target/*.jar 
+test: 
+stage: test 
+script: - echo "Running tests..." - mvn test 
+deploy: 
+stage: deploy 
+script: - echo "Deploying application..." - scp target/*.jar user@server:/deploy/path 
+only: - main
+
+
+
+�
+� Docker Build & Push to GitLab Container Registry 
+�
+� File: .gitlab-ci.yml 
+variables: 
+IMAGE_NAME: registry.gitlab.com/your-namespace/your-repo 
+stages: - build - push 
+build: 
+stage: build 
+script: - docker build -t $IMAGE_NAME:latest . 
+only: - main 
+push: 
+stage: push 
+script: - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY - docker push $IMAGE_NAME:latest 
+only: 
+- main
+
+�
+� Kubernetes Deployment 
+�
+� File: .gitlab-ci.yml 
+stages: - deploy 
+deploy: 
+stage: deploy 
+image: bitnami/kubectl 
+script: - kubectl apply -f k8s/deployment. 
+only: - main 
+
+�
+� Terraform Deployment 
+�
+� File: .gitlab-ci.yml 
+image: hashicorp/terraform:latest 
+stages: - terraform 
+terraform: 
+stage: terraform 
+script: - terraform init - terraform apply -auto-approve 
+only: 
+- main
+
+�
+� Security Scanning with Trivy 
+�
+� File: .gitlab-ci.yml 
+stages: - security_scan 
+security_scan: 
+stage: security_scan 
+script: - docker pull registry.gitlab.com/your-namespace/your-repo:latest - trivy image registry.gitlab.com/your-namespace/your-repo:latest 
+only: - main 
+
+
+�
+� SonarQube Code Analysis 
+�
+� File: .gitlab-ci.yml 
+image: maven:3.8.7 
+stages: - analysis 
+sonarqube: 
+stage: analysis 
+script: - mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN 
+only: - main 
