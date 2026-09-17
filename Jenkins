@@ -223,3 +223,39 @@ sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN'
 } 
 } 
 } 
+
+
+7. Jenkins with ansible
+
+pipeline{
+agent any
+environment{
+nodejs_path ='path'
+}
+parameters{
+string(name: 'Stage to deploy', description: 'stage to deploy')
+booleanParam(name: 'DEPLOY',defaultvalue: false, description: 'deploy to stageing')
+}
+
+stages{
+stage('lint'){
+steps{
+script{
+sh 'node -v'
+sh 'npm run lint'
+}
+}}
+stage('deploy staging){
+when{
+anyOf{
+branch  'Master'}
+}
+expression {return params.DEPLOY}
+steps{
+script{
+echo 'deploying'
+sh """
+ansible-playbook -i /etc/ansible/hosts deploy_staging.yml
+"""
+echo "deployed"
+
