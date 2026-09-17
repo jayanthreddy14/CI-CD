@@ -84,3 +84,22 @@ stage('Deploy') {
 sh 'scp target/*.jar user@server:/deploy/' 
 } 
 }
+
+
+6.Jenkins File Parameter Example 
+groovy  
+
+pipeline { 
+agent any 
+parameters { 
+booleanParam(name: 'DEPLOY', defaultValue: false, description: 'deployment') 
+} 
+stages { 
+stage('Read File') { 
+when { expression: { return params.DEPLOY}
+steps { 
+script{echo "Deploying"} 
+} 
+} 
+} 
+}
