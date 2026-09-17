@@ -1,0 +1,86 @@
+Jenkins (pipelines, declarative scripts) 
+Jenkins Installation (Ubuntu) 
+# Install Java (Jenkins requires Java) 
+sudo apt update && sudo apt install -y openjdk-17-jdk 
+# Add Jenkins repository & install Jenkins 
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee 
+/usr/share/keyrings/jenkins-keyring.asc > /dev/null 
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] 
+https://pkg.jenkins.io/debian-stable binary/" | sudo tee 
+/etc/apt/sources.list.d/jenkins.list > /dev/null 
+sudo apt update && sudo apt install -y jenkins 
+# Start & Enable Jenkins 
+sudo systemctl enable --now jenkins 
+# Check Jenkins status 
+sudo systemctl status jenkins 
+# Access Jenkins UI at http://your-server-ip:8080 
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword 
+1. Basic Jenkins Commands 
+systemctl start jenkins 
+systemctl stop jenkins  
+# Start Jenkins service 
+# Stop Jenkins service 
+systemctl restart jenkins  # Restart Jenkins service 
+systemctl status jenkins  
+# Check Jenkins service status 
+journalctl -u jenkins -f  # View real-time logs
+
+
+
+3. Jenkins Environment Variables 
+JENKINS_HOME # Jenkins home directory 
+BUILD_NUMBER  # Current build number 
+JOB_NAME # Job name 
+WORKSPACE   # Workspace directory 
+GIT_COMMIT  # Git commit hash of the build 
+BUILD_URL # URL of the build 
+NODE_NAME   # Name of the node the build is running on 
+
+
+4. Jenkins Pipeline (Declarative) 
+groovy 
+pipeline { 
+agent any 
+environment { 
+APP_ENV = 'production' 
+} 
+stages { 
+stage('Checkout') { 
+steps { 
+git 'https://github.com/your-repo.git' 
+} 
+} 
+stage('Build') { 
+steps { 
+sh 'mvn clean package' 
+} 
+} 
+stage('Test') { 
+steps { 
+sh 'mvn test' 
+} 
+} 
+stage('Deploy') { 
+steps { 
+sh 'scp target/*.jar user@server:/deploy/' 
+} 
+} 
+} 
+} 
+
+5. Jenkins Pipeline (Scripted) 
+groovy 
+node { 
+stage('Checkout') { 
+git 'https://github.com/your-repo.git' 
+} 
+stage('Build') { 
+sh 'mvn clean package' 
+} 
+stage('Test') { 
+sh 'mvn test' 
+} 
+stage('Deploy') { 
+sh 'scp target/*.jar user@server:/deploy/' 
+} 
+}
